@@ -161,8 +161,8 @@ def check_docs():
     s = read(DOCS)
     if not s:
         return
-    if not (8000 <= len(s) <= 16000):
-        problems.append(('世界电影/世界纪录片.md', '字符 %d 超出 8000–16000' % len(s)))
+    if not (10000 <= len(s) <= 20000):
+        problems.append(('世界电影/世界纪录片.md', '字符 %d 超出 10000–20000' % len(s)))
     secs = re.findall(r'^## ([一二三四五六七八九十]+)、', s, re.M)
     if len(secs) != 16:
         problems.append(('世界电影/世界纪录片.md', '国别节 %d 个（应为 16）' % len(secs)))
