@@ -13,8 +13,9 @@
     4. 导演：索引列 16 位，每位一个文件，六段齐全；影史导演总表 ≥180 位、按时代分节、时代内按国别分组
     5. 世界演员：17 个国别/地区节，120–220 位演员
     6. 世界纪录片：16 个国别/地区节，80–100 部
-    7. 所有 ../films/xxx.md 与辅轴间链接真实存在
-    8. 字符数落在约定区间
+    7. 输出层《我的观影观》：8 章、72 条金句、链接存在
+    8. 所有 ../films/xxx.md 与辅轴间链接真实存在
+    9. 字符数落在约定区间
 """
 import io
 import os
@@ -30,6 +31,7 @@ DIR_DIR = os.path.join(BASE, '导演')
 DIR_TOTAL = os.path.join(BASE, '导演', '影史导演总表.md')
 ACTORS = os.path.join(BASE, '世界电影', '世界演员.md')
 DOCS = os.path.join(BASE, '世界电影', '世界纪录片.md')
+MYVIEW = os.path.join(BASE, '我的观影观.md')
 
 CN_NUM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三', '十四', '十五', '十六']
 
@@ -179,6 +181,27 @@ def check_docs():
             problems.append(('世界电影/世界纪录片.md', '链接缺失：' + target))
 
 
+def check_my_view():
+    s = read(MYVIEW)
+    if not s:
+        return
+    if not (8000 <= len(s) <= 25000):
+        problems.append(('我的观影观.md', '字符 %d 超出 8000–25000' % len(s)))
+    secs = re.findall(r'^## [一二三四五六七八]、', s, re.M)
+    if len(secs) != 8:
+        problems.append(('我的观影观.md', '主题章 %d 个（应为 8）' % len(secs)))
+    quotes = re.findall(r'^> \*\*', s, re.M)
+    if len(quotes) != 72:
+        problems.append(('我的观影观.md', '金句 %d 条（应为 72）' % len(quotes)))
+    base = os.path.dirname(MYVIEW)
+    for target in sorted(set(re.findall(r'\]\(([^)#]+\.md)\)', s))):
+        if target.startswith('http'):
+            continue
+        full = os.path.normpath(os.path.join(base, target))
+        if not os.path.exists(full):
+            problems.append(('我的观影观.md', '链接缺失：' + target))
+
+
 def main():
     check_timeline()
     check_world()
@@ -186,6 +209,7 @@ def main():
     check_total()
     check_actors()
     check_docs()
+    check_my_view()
 
     if not problems:
         print('✅ 三条辅轴全部通过')

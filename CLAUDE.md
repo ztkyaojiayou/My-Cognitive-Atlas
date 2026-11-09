@@ -41,7 +41,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 python3 观万部影/tools/verify_films.py
 python3 观万部影/tools/verify_films.py --strict   # 额外检查 04/05 段是否过短
 
-# 三条辅轴校验（电影史十时代 / 世界电影 12 区 / 导演 16 位画像 + 228 位影史总表（时代 × 国别）/ 世界演员 17 区 165 位 / 世界纪录片 16 区 85 部 / 全部 films 链接存在）
+# 三条辅轴校验（电影史十时代 / 世界电影 12 区 / 导演 16 位画像 + 228 位影史总表（时代 × 国别）/ 世界演员 17 区 165 位 / 世界纪录片 16 区 85 部 / 我的观影观 8 章 72 条 / 全部 films 链接存在）
 python3 观万部影/tools/verify_axes.py
 
 # 豆瓣 Top250 更新后重跑比对；--rebuild 重新生成对照表
