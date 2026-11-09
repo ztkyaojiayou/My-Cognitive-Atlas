@@ -73,8 +73,8 @@ def check_world():
     s = read(WORLD)
     if not s:
         return
-    if not (5000 <= len(s) <= 10000):
-        problems.append(('世界电影/世界电影-国别地图.md', '字符 %d 超出 5000–10000' % len(s)))
+    if not (5000 <= len(s) <= 13000):
+        problems.append(('世界电影/世界电影-国别地图.md', '字符 %d 超出 5000–13000' % len(s)))
     for n in CN_NUM[:12]:
         if ('## %s、' % n) not in s:
             problems.append(('世界电影/世界电影-国别地图.md', '缺地区段落：' + n))
@@ -83,6 +83,9 @@ def check_world():
     blocks = re.findall(r'^### 类型特长', s, re.M)
     if len(blocks) != 12:
         problems.append(('世界电影/世界电影-国别地图.md', '类型特长块 %d 个（应为 12）' % len(blocks)))
+    stubs = re.findall(r'^\*\*片单外的招牌\*\*', s, re.M)
+    if len(stubs) != 13:
+        problems.append(('世界电影/世界电影-国别地图.md', '片单外招牌 %d 处（应为 12 区 + 短节 = 13）' % len(stubs)))
     check_links(WORLD, s)
 
 
