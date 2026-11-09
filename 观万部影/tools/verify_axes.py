@@ -10,7 +10,7 @@
     1. 三个辅轴入口存在：电影史/电影史-时间轴.md、世界电影/世界电影-国别地图.md、导演/README.md
     2. 电影史：十段结构齐全（## 一、… ## 十、），每段四块齐全
     3. 世界电影：十二区 + 短节齐全
-    4. 导演：索引列 16 位，每位一个文件，六段齐全；影史导演总表 ≥30 位
+    4. 导演：索引列 16 位，每位一个文件，六段齐全；影史导演总表 ≥120 位、按时代分节、时代内按国别分组
     5. 所有 ../films/xxx.md 链接真实存在
     6. 字符数落在约定区间
 """
@@ -115,9 +115,16 @@ def check_total():
     s = read(DIR_TOTAL)
     if not s:
         return
-    rows = re.findall(r'^\| [^|]+ \| [^|]*·[^|]* \|', s, re.M)
-    if len(rows) < 30:
-        problems.append(('导演/影史导演总表.md', '导演行数 %d（应 ≥30）' % len(rows)))
+    rows = [l for l in s.splitlines()
+            if l.startswith('| ') and '---' not in l and not l.startswith('| 导演')]
+    if len(rows) < 120:
+        problems.append(('导演/影史导演总表.md', '导演行数 %d（应 ≥120）' % len(rows)))
+    eras = re.findall(r'^## [一二三四五六七八九十]+、', s, re.M)
+    if len(eras) < 5:
+        problems.append(('导演/影史导演总表.md', '时代分节只有 %d 段（应 ≥5）' % len(eras)))
+    groups = re.findall(r'^### ', s, re.M)
+    if len(groups) < 30:
+        problems.append(('导演/影史导演总表.md', '国别分组只有 %d 个（应 ≥30）' % len(groups)))
     for target in sorted(set(re.findall(r'\]\((导演-[^)]+\.md)\)', s))):
         if not os.path.exists(os.path.join(DIR_DIR, target)):
             problems.append(('导演/影史导演总表.md', '画像链接缺失：' + target))
