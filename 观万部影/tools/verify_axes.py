@@ -10,8 +10,8 @@
     1. 三个辅轴入口存在：电影史/电影史-时间轴.md、世界电影/世界电影-国别地图.md、导演/README.md
     2. 电影史：十段结构齐全（## 一、… ## 十、），每段四块齐全
     3. 世界电影：十二区 + 短节齐全
-    4. 导演：索引列 16 位，每位一个文件，六段齐全；影史导演总表 ≥120 位、按时代分节、时代内按国别分组
-    5. 世界演员：16 个国别/地区节，80–120 位演员
+    4. 导演：索引列 16 位，每位一个文件，六段齐全；影史导演总表 ≥180 位、按时代分节、时代内按国别分组
+    5. 世界演员：17 个国别/地区节，120–220 位演员
     6. 所有 ../films/xxx.md 链接真实存在
     7. 字符数落在约定区间
 """
@@ -125,8 +125,8 @@ def check_total():
         return
     rows = [l for l in s.splitlines()
             if l.startswith('| ') and '---' not in l and not l.startswith('| 导演')]
-    if len(rows) < 120:
-        problems.append(('导演/影史导演总表.md', '导演行数 %d（应 ≥120）' % len(rows)))
+    if len(rows) < 180:
+        problems.append(('导演/影史导演总表.md', '导演行数 %d（应 ≥180）' % len(rows)))
     eras = re.findall(r'^## [一二三四五六七八九十]+、', s, re.M)
     if len(eras) < 5:
         problems.append(('导演/影史导演总表.md', '时代分节只有 %d 段（应 ≥5）' % len(eras)))
@@ -143,15 +143,15 @@ def check_actors():
     s = read(ACTORS)
     if not s:
         return
-    if not (5000 <= len(s) <= 15000):
-        problems.append(('世界电影/世界演员.md', '字符 %d 超出 5000–15000' % len(s)))
+    if not (5000 <= len(s) <= 25000):
+        problems.append(('世界电影/世界演员.md', '字符 %d 超出 5000–25000' % len(s)))
     secs = re.findall(r'^## ([一二三四五六七八九十]+)、', s, re.M)
-    if len(secs) < 16:
-        problems.append(('世界电影/世界演员.md', '国别节 %d 个（应 ≥16）' % len(secs)))
+    if len(secs) < 17:
+        problems.append(('世界电影/世界演员.md', '国别节 %d 个（应 ≥17）' % len(secs)))
     rows = [l for l in s.splitlines()
             if l.startswith('| ') and '---' not in l and not l.startswith('| 演员')]
-    if not (80 <= len(rows) <= 120):
-        problems.append(('世界电影/世界演员.md', '演员行数 %d（应在 80–120）' % len(rows)))
+    if not (120 <= len(rows) <= 220):
+        problems.append(('世界电影/世界演员.md', '演员行数 %d（应在 120–220）' % len(rows)))
     check_links(ACTORS, s)
 
 
