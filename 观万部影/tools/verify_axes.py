@@ -10,7 +10,7 @@
     1. 三个辅轴入口存在：电影史/电影史-时间轴.md、世界电影/世界电影-国别地图.md、导演/README.md
     2. 电影史：十段结构齐全（## 一、… ## 十、），每段四块齐全
     3. 世界电影：十二区 + 短节齐全
-    4. 导演：索引列 12 位，每位一个文件，六段齐全
+    4. 导演：索引列 16 位，每位一个文件，六段齐全；影史导演总表 ≥30 位
     5. 所有 ../films/xxx.md 链接真实存在
     6. 字符数落在约定区间
 """
@@ -25,6 +25,7 @@ TIMELINE = os.path.join(BASE, '电影史', '电影史-时间轴.md')
 WORLD = os.path.join(BASE, '世界电影', '世界电影-国别地图.md')
 DIR_INDEX = os.path.join(BASE, '导演', 'README.md')
 DIR_DIR = os.path.join(BASE, '导演')
+DIR_TOTAL = os.path.join(BASE, '导演', '影史导演总表.md')
 
 CN_NUM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二']
 
@@ -87,12 +88,12 @@ def check_directors():
     if not index:
         return
     rows = re.findall(r'^\| \d+ \|', index, re.M)
-    if len(rows) != 12:
-        problems.append(('导演/README.md', '索引行数 %d（应为 12）' % len(rows)))
+    if len(rows) != 16:
+        problems.append(('导演/README.md', '索引行数 %d（应为 16）' % len(rows)))
 
     files = sorted(f for f in os.listdir(DIR_DIR) if f.startswith('导演-') and f.endswith('.md'))
-    if len(files) != 12:
-        problems.append(('导演/', '导演档案 %d 个（应为 12）' % len(files)))
+    if len(files) != 16:
+        problems.append(('导演/', '导演档案 %d 个（应为 16）' % len(files)))
 
     for f in files:
         p = os.path.join(DIR_DIR, f)
@@ -105,11 +106,29 @@ def check_directors():
                 problems.append((rel, '缺段落：' + n))
         check_links(p, s)
 
+    for target in sorted(set(re.findall(r'\]\((导演-[^)]+\.md)\)', index))):
+        if not os.path.exists(os.path.join(DIR_DIR, target)):
+            problems.append(('导演/README.md', '索引链接缺失：' + target))
+
+
+def check_total():
+    s = read(DIR_TOTAL)
+    if not s:
+        return
+    rows = re.findall(r'^\| [^|]+ \| [^|]*·[^|]* \|', s, re.M)
+    if len(rows) < 30:
+        problems.append(('导演/影史导演总表.md', '导演行数 %d（应 ≥30）' % len(rows)))
+    for target in sorted(set(re.findall(r'\]\((导演-[^)]+\.md)\)', s))):
+        if not os.path.exists(os.path.join(DIR_DIR, target)):
+            problems.append(('导演/影史导演总表.md', '画像链接缺失：' + target))
+    check_links(DIR_TOTAL, s)
+
 
 def main():
     check_timeline()
     check_world()
     check_directors()
+    check_total()
 
     if not problems:
         print('✅ 三条辅轴全部通过')
