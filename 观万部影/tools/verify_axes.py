@@ -13,7 +13,7 @@
     4. 导演：索引列 16 位，每位一个文件，六段齐全；影史导演总表 ≥180 位、按时代分节、时代内按国别分组
     5. 世界演员：17 个国别/地区节，120–220 位演员
     6. 世界纪录片：16 个国别/地区节，80–100 部
-    7. 输出层《我的观影观》：8 章、72 条金句、链接存在
+    7. 输出层《我的观影观》：8 章、每章 3–4 条原句 + "仍不确定"、附录原句索引、合计 72 条、链接存在
     8. 所有 ../films/xxx.md 与辅轴间链接真实存在
     9. 字符数落在约定区间
 """
@@ -185,14 +185,34 @@ def check_my_view():
     s = read(MYVIEW)
     if not s:
         return
-    if not (8000 <= len(s) <= 25000):
-        problems.append(('我的观影观.md', '字符 %d 超出 8000–25000' % len(s)))
+    if not (10000 <= len(s) <= 30000):
+        problems.append(('我的观影观.md', '字符 %d 超出 10000–30000' % len(s)))
     secs = re.findall(r'^## [一二三四五六七八]、', s, re.M)
     if len(secs) != 8:
         problems.append(('我的观影观.md', '主题章 %d 个（应为 8）' % len(secs)))
     quotes = re.findall(r'^> \*\*', s, re.M)
     if len(quotes) != 72:
         problems.append(('我的观影观.md', '金句 %d 条（应为 72）' % len(quotes)))
+    # 认知转变体：正文每章 3–4 条原句，其余进"原句索引"
+    marker = '## 原句索引'
+    if marker not in s:
+        problems.append(('我的观影观.md', '缺"原句索引"附录'))
+        return
+    body, appendix = s.split(marker, 1)
+    chapters = re.split(r'^## [一二三四五六七八]、', body, flags=re.M)[1:]
+    if len(chapters) != 8:
+        problems.append(('我的观影观.md', '可分割主题章 %d 个（应为 8）' % len(chapters)))
+    for i, ch in enumerate(chapters, 1):
+        n = len(re.findall(r'^> \*\*', ch, re.M))
+        if not (3 <= n <= 4):
+            problems.append(('我的观影观.md', '第 %d 章正文原句 %d 条（应为 3–4）' % (i, n)))
+        if '**仍不确定：**' not in ch:
+            problems.append(('我的观影观.md', '第 %d 章缺"仍不确定"' % i))
+    n_app = len(re.findall(r'^> \*\*', appendix, re.M))
+    if not (36 <= n_app <= 44):
+        problems.append(('我的观影观.md', '附录原句 %d 条（应为 36–44）' % n_app))
+    if len(re.findall(r'^> \*\*', body, re.M)) + n_app != 72:
+        problems.append(('我的观影观.md', '正文 + 附录原句总数不为 72'))
     base = os.path.dirname(MYVIEW)
     for target in sorted(set(re.findall(r'\]\(([^)#]+\.md)\)', s))):
         if target.startswith('http'):
