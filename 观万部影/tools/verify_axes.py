@@ -12,8 +12,9 @@
     3. 世界电影：十二区 + 短节齐全
     4. 导演：索引列 16 位，每位一个文件，六段齐全；影史导演总表 ≥180 位、按时代分节、时代内按国别分组
     5. 世界演员：17 个国别/地区节，120–220 位演员
-    6. 所有 ../films/xxx.md 链接真实存在
-    7. 字符数落在约定区间
+    6. 世界纪录片：16 个国别/地区节，80–100 部
+    7. 所有 ../films/xxx.md 与辅轴间链接真实存在
+    8. 字符数落在约定区间
 """
 import io
 import os
@@ -28,6 +29,7 @@ DIR_INDEX = os.path.join(BASE, '导演', 'README.md')
 DIR_DIR = os.path.join(BASE, '导演')
 DIR_TOTAL = os.path.join(BASE, '导演', '影史导演总表.md')
 ACTORS = os.path.join(BASE, '世界电影', '世界演员.md')
+DOCS = os.path.join(BASE, '世界电影', '世界纪录片.md')
 
 CN_NUM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三', '十四', '十五', '十六']
 
@@ -155,12 +157,35 @@ def check_actors():
     check_links(ACTORS, s)
 
 
+def check_docs():
+    s = read(DOCS)
+    if not s:
+        return
+    if not (8000 <= len(s) <= 16000):
+        problems.append(('世界电影/世界纪录片.md', '字符 %d 超出 8000–16000' % len(s)))
+    secs = re.findall(r'^## ([一二三四五六七八九十]+)、', s, re.M)
+    if len(secs) != 16:
+        problems.append(('世界电影/世界纪录片.md', '国别节 %d 个（应为 16）' % len(secs)))
+    rows = [l for l in s.splitlines() if l.startswith('| 《')]
+    if not (80 <= len(rows) <= 100):
+        problems.append(('世界电影/世界纪录片.md', '纪录片行数 %d（应在 80–100）' % len(rows)))
+    # 通用相对链接：片单、电影史、世界电影、导演、必看清单
+    base = os.path.dirname(DOCS)
+    for target in sorted(set(re.findall(r'\]\(([^)#]+\.md)\)', s))):
+        if target.startswith('http'):
+            continue
+        full = os.path.normpath(os.path.join(base, target))
+        if not os.path.exists(full):
+            problems.append(('世界电影/世界纪录片.md', '链接缺失：' + target))
+
+
 def main():
     check_timeline()
     check_world()
     check_directors()
     check_total()
     check_actors()
+    check_docs()
 
     if not problems:
         print('✅ 三条辅轴全部通过')
