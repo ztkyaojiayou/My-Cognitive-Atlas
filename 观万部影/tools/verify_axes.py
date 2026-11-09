@@ -80,6 +80,9 @@ def check_world():
             problems.append(('世界电影/世界电影-国别地图.md', '缺地区段落：' + n))
     if '## 短节：拉美与非洲' not in s:
         problems.append(('世界电影/世界电影-国别地图.md', '缺短节：拉美与非洲'))
+    blocks = re.findall(r'^### 类型特长', s, re.M)
+    if len(blocks) != 12:
+        problems.append(('世界电影/世界电影-国别地图.md', '类型特长块 %d 个（应为 12）' % len(blocks)))
     check_links(WORLD, s)
 
 
