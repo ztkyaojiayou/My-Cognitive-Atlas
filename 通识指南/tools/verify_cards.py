@@ -86,14 +86,19 @@ def check_card(path):
 
 
 def bold_counts(path):
-    """返回 (行内强调数, 整行结构性标签数)。跳过文件头部引用块。"""
+    """返回 (行内强调数, 整行结构性标签数)。
+
+    跳过文件头部的引用块。
+    列表项开头的加粗（`- **某某。**`）算结构性标签，不算行内强调。
+    """
     inline = label = 0
+    prefix = r'^\s*(?:[-*+]\s+|\d+[.)]\s+|>\s*)+'
     lines = io.open(path, encoding='utf-8').read().split('\n')
     for i, l in enumerate(lines):
         if i < 4 and l.startswith('>'):
             continue
         for m in re.finditer(r'\*\*(.+?)\*\*', l):
-            if l[:m.start()].rstrip():
+            if re.sub(prefix, '', l[:m.start()]).strip():
                 inline += 1
             else:
                 label += 1
