@@ -13,6 +13,7 @@
     3. 卡片的模块归属与所在目录一致
     4. 每个一级模块有「导读.md」，有卡片的模块有「事实基线.md」
     5. --strict：卡片中的年份/数字，是否能在该模块 事实基线.md 中找到
+    6. --bold：加粗口径（行内强调 2–4 处；整行结构性标签 ≤12 处）
 """
 import io
 import os
@@ -84,6 +85,32 @@ def check_card(path):
     return probs
 
 
+def bold_counts(path):
+    """返回 (行内强调数, 整行结构性标签数)。跳过文件头部引用块。"""
+    inline = label = 0
+    lines = io.open(path, encoding='utf-8').read().split('\n')
+    for i, l in enumerate(lines):
+        if i < 4 and l.startswith('>'):
+            continue
+        for m in re.finditer(r'\*\*(.+?)\*\*', l):
+            if l[:m.start()].rstrip():
+                inline += 1
+            else:
+                label += 1
+    return inline, label
+
+
+def check_bold(path):
+    """--bold：行内强调 2–4 处；整行结构性标签 ≤12 处"""
+    inline, label = bold_counts(path)
+    probs = []
+    if not (2 <= inline <= 4):
+        probs.append('行内强调加粗 %d 处，应为 2–4 处' % inline)
+    if label > 12:
+        probs.append('结构性标签加粗 %d 处，应 ≤12 处' % label)
+    return probs
+
+
 def main():
     mods = module_dirs()
     if not mods:
@@ -104,6 +131,9 @@ def main():
     for c in cards:
         for p in check_card(c):
             problems.append((os.path.relpath(c, BASE), p))
+        if '--bold' in sys.argv:
+            for p in check_bold(c):
+                problems.append((os.path.relpath(c, BASE), p))
 
     print('模块 %d 个，卡片 %d 张' % (len(mods), len(cards)))
     if not problems:
