@@ -25,8 +25,8 @@ BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 卡片八段（一句话理解 + 一至七）
 SECTIONS = ['## 一句话理解', '## 一、', '## 二、', '## 三、', '## 四、', '## 五、', '## 六、', '## 七、']
 
-# 层级字数区间（含容差）
-RANGE = {'L1': (650, 1250), 'L2': (850, 1550), 'L3': (1100, 1800)}
+# 层级字数区间：按**汉字数**计（与卡片模板的「字」一致），含容差
+RANGE = {'L1': (700, 1150), 'L2': (850, 1400), 'L3': (1050, 1700)}
 
 
 def module_dirs():
@@ -55,9 +55,10 @@ def check_card(path):
     if not lvl:
         probs.append('未标层级（头部应有「层级：L1/L2/L3」）')
     else:
+        han = len(re.findall(r'[\u4e00-\u9fff]', s))
         lo, hi = RANGE[lvl]
-        if not (lo <= len(s) <= hi):
-            probs.append('字数 %d 超出 %s 区间 %d–%d' % (len(s), lvl, lo, hi))
+        if not (lo <= han <= hi):
+            probs.append('汉字数 %d 超出 %s 区间 %d–%d' % (han, lvl, lo, hi))
 
     # 3 模块归属
     mm = re.search(r'模块[：:]\s*\**\s*(\d{2})-', s)
