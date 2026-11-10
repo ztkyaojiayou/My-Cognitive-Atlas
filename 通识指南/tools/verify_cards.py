@@ -50,7 +50,7 @@ def check_card(path):
         probs.append('缺段: ' + ' / '.join(m.rstrip('、') for m in missing))
 
     # 2 字数
-    m = re.search(r'层级：\s*(L[123])', s)
+    m = re.search(r'层级[：:]\s*\**\s*(L[123])', s)
     lvl = m.group(1) if m else None
     if not lvl:
         probs.append('未标层级（头部应有「层级：L1/L2/L3」）')
@@ -60,7 +60,7 @@ def check_card(path):
             probs.append('字数 %d 超出 %s 区间 %d–%d' % (len(s), lvl, lo, hi))
 
     # 3 模块归属
-    mm = re.search(r'模块：\s*(\d{2})-', s)
+    mm = re.search(r'模块[：:]\s*\**\s*(\d{2})-', s)
     if mm:
         num = mm.group(1)
         if not mod.startswith(num + '-'):
@@ -75,7 +75,8 @@ def check_card(path):
             probs.append('缺事实基线.md，无法核对硬事实')
         else:
             facts = io.open(bl, encoding='utf-8').read()
-            nums = set(re.findall(r'\b(1[6-9]\d{2}|20\d{2})\b', s))  # 年份
+            body = re.sub(r'^>.*$', '', s, flags=re.M)  # 去掉头部引用块（含更新日期）
+            nums = set(re.findall(r'\b(1[6-9]\d{2}|20\d{2})\b', body))  # 年份
             miss = [n for n in nums if n not in facts]
             if miss:
                 probs.append('年份未见于事实基线: ' + ','.join(sorted(miss)[:8]))
